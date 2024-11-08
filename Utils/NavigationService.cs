@@ -9,15 +9,13 @@ namespace Automate.Utils
 {
     public class NavigationService
     {
-        // Méthode pour ouvrir une nouvelle vue
-        public void NavigateTo<T>() where T : Window, new()
+        public void OpenNewView<T>() where T : Window, new()
         {
             var window = new T();
             window.Show();
         }
 
-        // Méthode pour fermer la vue actuelle
-        public void Close(Window window)
+        public void CloseCurrentView(Window window)
         {
             window.Close();
         }
