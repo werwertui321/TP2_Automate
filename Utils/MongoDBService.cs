@@ -12,10 +12,11 @@ namespace Automate.Utils
     {
         private readonly IMongoDatabase _database;
         private readonly IMongoCollection<UserModel> _users;
+        const string MONGO_URL = "mongodb://localhost:27017";
 
         public MongoDBService(string databaseName)
         {
-            var client = new MongoClient("mongodb://localhost:27017"); // URL du serveur MongoDB
+            var client = new MongoClient(MONGO_URL);
             _database = client.GetDatabase(databaseName);
             _users = _database.GetCollection<UserModel>("Users");
         }

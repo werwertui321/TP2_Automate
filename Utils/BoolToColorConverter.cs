@@ -14,13 +14,15 @@ namespace Automate.Utils
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            SolidColorBrush defaultColor = Brushes.Transparent;
+
             if (value is bool boolValue)
             {
-                var red = new BrushConverter().ConvertFrom("#c50500") as SolidColorBrush;
+                SolidColorBrush? red = new BrushConverter().ConvertFrom("#c50500") as SolidColorBrush;
 
-                return boolValue ? red : Brushes.Transparent; // Choisissez la couleur ici
+                return boolValue ? red! : defaultColor;
             }
-            return Brushes.Transparent; // Valeur par défaut
+            return defaultColor;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
