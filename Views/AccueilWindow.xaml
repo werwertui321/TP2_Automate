@@ -3,10 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Automate.Views"
         mc:Ignorable="d"
-        Title="AccueilWindow" Height="450" Width="800">
+        Title="Calendrier des Tâches" Height="500" Width="800">
     <Grid>
-        
+        <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" />
+        <TextBox Name="taskTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="400,0,0,166" Width="366" Height="33" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+        <Button Content="Ajouter/Modifier Tâche" Margin="400,354,0,0" Width="178" Height="30" Click="AddOrUpdateTask" VerticalAlignment="Top"/>
+        <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="616,0,0,100" Width="150" Height="30" Click="DeleteTask"/>
+        <ListBox d:ItemsSource="{d:SampleData ItemCount=3}" Margin="400,57,34,222"/>
     </Grid>
 </Window>
