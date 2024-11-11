@@ -111,8 +111,8 @@ namespace Automate.ViewModels
                 }
                 else
                 {
-                    _navigationService.NavigateTo<AccueilWindow>();
-                    _navigationService.Close(_window);
+                    _navigationService.OpenNewView<AccueilWindow>();
+                    _navigationService.CloseCurrentView(_window);
                     Trace.WriteLine("logged in");
                 }
 
