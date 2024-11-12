@@ -16,33 +16,28 @@ using System.Windows.Input;
 
 namespace Automate.ViewModels
 {
-    public class LoginViewModel
+    public class LoginViewModel : INotifyDataErrorInfo, INotifyPropertyChanged
     {
         private string? _username;
         private string? _password;
         private readonly IUserService _userService;
         private readonly NavigationService _navigationService;
         private Window _window;
-
-        private ErrorCollection errorCollection;
-        private string ErrorMessages;
-
-        public bool HasPasswordErrors => errorCollection.errors.ContainsKey(nameof(Password)) && errorCollection.errors[nameof(Password)].Any();
-
-
+        private readonly ErrorCollection errorCollection;
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public ICommand AuthenticateCommand { get; }
-        
+        public bool HasPasswordErrors => errorCollection.errors.ContainsKey(nameof(Password)) && errorCollection.errors[nameof(Password)].Any();
+        public bool HasErrors => errorCollection.errors.Count > 0;
+
 
         public LoginViewModel(Window openedWindow, IUserService userService)
         {
-            //instanciation de la BD
             _userService = userService;
             AuthenticateCommand = new RelayCommand(ValidateAuthentication);
-
             _navigationService = new NavigationService();
             errorCollection = new ErrorCollection();
             _window = openedWindow;
-
         }
 
         public string? Username
@@ -51,7 +46,7 @@ namespace Automate.ViewModels
             set
             {
                 _username = value;
-                errorCollection.NotifyOnPropertyChanged(nameof(Username));
+                NotifyOnPropertyChanged(nameof(Username));
                 ValidateProperty(nameof(Username));
             }
         }
@@ -62,21 +57,35 @@ namespace Automate.ViewModels
             set
             {
                 _password = value;
-                errorCollection.NotifyOnPropertyChanged(nameof(Password));
+                NotifyOnPropertyChanged(nameof(Password));
                 ValidateProperty(nameof(Password));
             }
+        }
+
+        public string ErrorMessages
+        {
+            get { return errorCollection.FormatErrorList(errorCollection.errors); }
         }
 
         private void AddError(string propertyName,  string message)
         {
             errorCollection.AddError(propertyName, message);
-            errorCollection.NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        public void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void RemoveError(string propertyName)
         {
             errorCollection.RemoveError(propertyName);
-            errorCollection.NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         public void ValidateAuthentication()
@@ -84,7 +93,7 @@ namespace Automate.ViewModels
             ValidateProperty(nameof(Username));
             ValidateProperty(nameof(Password));
 
-            if (!errorCollection.HasErrors)
+            if (!HasErrors)
             {
                 var user = _userService.Authenticate(Username, Password);
                 if (user == null)
@@ -99,7 +108,6 @@ namespace Automate.ViewModels
                     _navigationService.CloseCurrentView(_window);
                     Trace.WriteLine("logged in");
                 }
-
             }
         }
 
@@ -131,11 +139,15 @@ namespace Automate.ViewModels
             }
         }
 
-        
+        public IEnumerable GetErrors(string? propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
+            {
+                return Enumerable.Empty<string>();
+            }
 
-        
-
-        
+            return errorCollection.errors[propertyName];
+        }
 
     }
 }

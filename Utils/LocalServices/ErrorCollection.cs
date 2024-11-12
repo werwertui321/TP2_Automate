@@ -9,21 +9,10 @@ using System.Threading.Tasks;
 
 namespace Automate.Utils.LocalServices
 {
-    public class ErrorCollection : INotifyDataErrorInfo, INotifyPropertyChanged
+    public class ErrorCollection
     {
-        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         public bool HasErrors => errors.Count > 0;
-
-        public string ErrorMessages
-        {
-            get
-            {
-                return FormatErrorList(errors);
-            }
-        }
 
         public ErrorCollection() { }
 
@@ -36,9 +25,7 @@ namespace Automate.Utils.LocalServices
             if (!errors[propertyName].Contains(errorMessage))
             {
                 errors[propertyName].Add(errorMessage);
-                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             }
-            NotifyOnPropertyChanged(nameof(ErrorMessages));
         }
 
         public void RemoveError(string propertyName)
@@ -46,17 +33,10 @@ namespace Automate.Utils.LocalServices
             if (errors.ContainsKey(propertyName))
             {
                 errors.Remove(propertyName);
-                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             }
-            NotifyOnPropertyChanged(ErrorMessages);
         }
 
-        public void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private string FormatErrorList(Dictionary<string, List<string>> errors)
+        public string FormatErrorList(Dictionary<string, List<string>> errors)
         {
             var allErrors = new List<string>();
             foreach (var errorList in this.errors.Values)
@@ -65,16 +45,6 @@ namespace Automate.Utils.LocalServices
             }
             allErrors.RemoveAll(error => string.IsNullOrWhiteSpace(error));
             return string.Join("\n", allErrors);
-        }
-
-        public IEnumerable GetErrors(string? propertyName)
-        {
-            if (string.IsNullOrEmpty(propertyName) || !errors.ContainsKey(propertyName))
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return errors[propertyName];
         }
     }
 }
