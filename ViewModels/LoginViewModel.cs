@@ -1,4 +1,4 @@
-﻿using Automate.Utils;
+﻿using Automate.Utils.Services;
 using Automate.Views;
 using System;
 using System.Collections;
@@ -20,12 +20,10 @@ namespace Automate.ViewModels
         //Propriétés du ViewModel
         private string? _username;
         private string? _password;
-        private readonly MongoDBService _mongoService;
+        private readonly UserService _userService;
         private readonly NavigationService _navigationService;
-        //référence à la vue
         private Window _window;
 
-        //dictionnaire des erreurs de validation
         private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();
 
         //Gestionnaires d'événements 
@@ -37,19 +35,17 @@ namespace Automate.ViewModels
         public bool HasErrors => _errors.Count > 0;
         public bool HasPasswordErrors => _errors.ContainsKey(nameof(Password)) && _errors[nameof(Password)].Any();
 
-        //constructeur
         public LoginViewModel(Window openedWindow)
         {
             //instanciation de la BD
-            _mongoService = new MongoDBService("AutomateDB");
-            AuthenticateCommand = new RelayCommand(Authenticate);
+            _userService = new UserService();
+            AuthenticateCommand = new RelayCommand(ValidateAuthentication);
 
             _navigationService = new NavigationService();
             _window = openedWindow;
 
         }
 
-        //propriétés
         public string? Username
         {
             get => _username;
@@ -57,7 +53,7 @@ namespace Automate.ViewModels
             {
                 //quand la valeur du textbox est modifiée, on valide les données et on avertit la vue
                 _username = value;
-                OnPropertyChanged(nameof(Username));
+                NotifyOnPropertyChanged(nameof(Username));
                 ValidateProperty(nameof(Username));
             }
         }
@@ -68,7 +64,7 @@ namespace Automate.ViewModels
             set
             {
                 _password = value;
-                OnPropertyChanged(nameof(Password));
+                NotifyOnPropertyChanged(nameof(Password));
                 ValidateProperty(nameof(Password));
             }
         }
@@ -77,32 +73,34 @@ namespace Automate.ViewModels
         {
             get
             {
-                var allErrors = new List<string>();
-                foreach (var errorList in _errors.Values)
-                {
-                    allErrors.AddRange(errorList);
-                }
-                // Retirer les chaînes vides et nulles
-                allErrors.RemoveAll(error => string.IsNullOrWhiteSpace(error));
-
-                return string.Join("\n", allErrors); // Joint les erreurs par une nouvelle ligne
+                return FormatErrorList(_errors);
             }
         }
 
-        //méthodes
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private string FormatErrorList(Dictionary<string, List<string>> errors)
+        {
+            var allErrors = new List<string>();
+            foreach (var errorList in _errors.Values)
+            {
+                allErrors.AddRange(errorList);
+            }
+            allErrors.RemoveAll(error => string.IsNullOrWhiteSpace(error));
+            return string.Join("\n", allErrors);
+        }
+
+        protected void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void Authenticate()
+        public void ValidateAuthentication()
         {
             ValidateProperty(nameof(Username));
             ValidateProperty(nameof(Password));
 
             if (!HasErrors)
             {
-                var user = _mongoService.Authenticate(Username, Password);
+                var user = _userService.Authenticate(Username, Password);
                 if (user == null)
                 {
                     AddError("Username", "Nom d'utilisateur ou mot de passe invalide");
@@ -158,9 +156,8 @@ namespace Automate.ViewModels
                 _errors[propertyName].Add(errorMessage);
                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             }
-            // Notifier les changements des propriétés
-            OnPropertyChanged(nameof(ErrorMessages));
-            OnPropertyChanged(nameof(HasPasswordErrors));
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
         }
 
         private void RemoveError(string propertyName)
@@ -170,9 +167,8 @@ namespace Automate.ViewModels
                 _errors.Remove(propertyName);
                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName)); 
             }
-            // Notifier les changements des propriétés
-            OnPropertyChanged(nameof(ErrorMessages));
-            OnPropertyChanged(nameof(HasPasswordErrors));
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
         }
 
         public IEnumerable GetErrors(string? propertyName)

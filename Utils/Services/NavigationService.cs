@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Automate.Utils
+namespace Automate.Utils.Services
 {
     public class NavigationService
     {
