@@ -8,8 +8,8 @@
     <Grid>
         <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" />
         <TextBox Name="taskTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="400,0,0,166" Width="366" Height="33" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
-        <Button Content="Ajouter/Modifier Tâche" Margin="400,354,0,0" Width="178" Height="30" Click="AddOrUpdateTask" VerticalAlignment="Top"/>
-        <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="616,0,0,100" Width="150" Height="30" Click="DeleteTask"/>
+        <Button Content="Ajouter/Modifier Tâche" Margin="400,354,0,0" Width="178" Height="30" VerticalAlignment="Top"/>
+        <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="616,0,0,100" Width="150" Height="30"/>
         <ListBox d:ItemsSource="{d:SampleData ItemCount=3}" Margin="400,57,34,222"/>
     </Grid>
 </Window>
