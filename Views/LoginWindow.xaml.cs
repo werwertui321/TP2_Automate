@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Automate.Utils.Services;
 
 namespace Automate
 {
@@ -25,7 +26,7 @@ namespace Automate
         public LoginWindow()
         {
             InitializeComponent();
-            DataContext = new LoginViewModel(this);
+            DataContext = new LoginViewModel(this, new UserService());
         }
 
         //pas le choix d'utiliser un événement, on ne peut pas BIND un password pour des raisons de sécurité
