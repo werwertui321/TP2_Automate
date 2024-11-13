@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Automate.Utils.Services
+namespace Automate.Utils.LocalServices
 {
     public class NavigationService
     {
@@ -20,5 +20,4 @@ namespace Automate.Utils.Services
             window.Close();
         }
     }
-
 }
