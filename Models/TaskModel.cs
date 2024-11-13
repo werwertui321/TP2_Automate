@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Automate.Models
 {
-    public class Task
+    public class TaskModel
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -18,6 +18,12 @@ namespace Automate.Models
 
         [BsonElement("Date")]
         public DateTime? Date { get; set; }
+
+        public TaskModel(DateTime date, string description)
+        {
+            this.Description = description;
+            this.Date = date;
+        }
     }
     
 }

@@ -15,15 +15,12 @@ using System.Windows.Shapes;
 
 namespace Automate.Views
 {
-    /// <summary>
-    /// Logique d'interaction pour AccueilWindow.xaml
-    /// </summary>
-    public partial class AccueilWindow : Window
+    public partial class CalendarWindow : Window
     {
-        public AccueilWindow()
+        public CalendarWindow()
         {
             InitializeComponent();
-            DataContext = new HomeViewModel(this);
+            DataContext = new CalendarViewModel(this);
         }
     }
 }
