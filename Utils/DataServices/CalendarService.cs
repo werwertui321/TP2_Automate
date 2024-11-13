@@ -13,9 +13,9 @@ namespace Automate.Utils.Services
 {
     public interface ICalendarService
     {
-        public List<TaskModel> GetTasksByDate(DateTime? date);
+        public List<Models.TaskModel> GetTasksByDate(DateTime? date);
 
-        public void AddTask(TaskModel task);
+        public void AddTask(Models.TaskModel task);
         
         public void UpdateTask(string newTaskDescription, string taskId);
 

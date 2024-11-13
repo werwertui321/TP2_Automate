@@ -16,10 +16,10 @@ namespace Automate.ViewModels
         public ICommand GoToCalendarCommand { get; }
 
         private Window _window;
-        public HomeViewModel(Window openedWindow)
+        public HomeViewModel(Window openedWindow, NavigationService navigationService)
         {
             GoToCalendarCommand = new RelayCommand(GotoCalendarView);
-            _navigationService = new NavigationService();
+            _navigationService = navigationService;
             _window = openedWindow;
         }
 

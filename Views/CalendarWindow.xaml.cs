@@ -1,4 +1,5 @@
 ﻿using Automate.ViewModels;
+using Automate.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Automate.Views
         public CalendarWindow()
         {
             InitializeComponent();
-            DataContext = new CalendarViewModel(this);
+            DataContext = new CalendarViewModel(this, Env.calendarService);
         }
     }
 }

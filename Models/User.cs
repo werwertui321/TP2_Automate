@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Automate.Models
 {
-    public class UserModel
+    public class User
     {
         [BsonId]
         public ObjectId Id { get; set; }

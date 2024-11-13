@@ -7,15 +7,17 @@
         Title="Calendrier des Tâches" Height="500" Width="800">
     <Grid>
         <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" SelectedDate="{Binding SelectedDate, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBox Name="taskTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="400,0,0,170" Width="366" Height="33" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding TaskDescription, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button Content="Ajouter/Modifier Tâche" Margin="400,319,0,0" Width="366" Height="30" VerticalAlignment="Top" Command="{Binding AddTaskCommand}"/>
-        <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="400,0,0,76" Width="366" Height="30"/>
         <ListBox Margin="400,57,34,222" ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Description"/>
-        <TextBlock Foreground="#c50500" 
+        <Grid>
+            <TextBox Name="taskTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="400,0,0,170" Width="366" Height="33" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding TaskDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Ajouter/Modifier Tâche" Margin="400,319,0,0" Width="366" Height="30" VerticalAlignment="Top" Command="{Binding AddTaskCommand}"/>
+            <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="400,0,0,76" Width="366" Height="30"/>
+            <TextBlock Foreground="#c50500" 
             Text="{Binding ErrorMessages}"
             Width="400" 
             Margin="383,413,0,10"
             HorizontalAlignment="Left"
             TextAlignment="Center"/>
+        </Grid>
     </Grid>
 </Window>

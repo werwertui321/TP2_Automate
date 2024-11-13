@@ -22,7 +22,6 @@ namespace Automate.ViewModels
         private List<TaskModel> _tasks;
         private readonly ErrorCollection errorCollection;
         private readonly CalendarService _calendarService;
-        private readonly MongoDBService _database;
         private Window _window;
 
         public ICommand AddTaskCommand { get; }
@@ -32,12 +31,11 @@ namespace Automate.ViewModels
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         
 
-        public CalendarViewModel(Window openedWindow)
+        public CalendarViewModel(Window openedWindow, CalendarService calendarService)
         {
             _selectedDate = DateTime.Today;
             _tasks = new List<TaskModel>();
-            _database = new MongoDBService();
-            _calendarService = new CalendarService(_database);
+            _calendarService = calendarService;
             AddTaskCommand = new RelayCommand(AddTask);
             Tasks = _calendarService.GetTasksByDate(SelectedDate);
             errorCollection = new ErrorCollection();

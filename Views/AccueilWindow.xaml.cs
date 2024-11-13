@@ -1,4 +1,5 @@
 ﻿using Automate.ViewModels;
+using Automate.Utils.LocalServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,12 @@ using System.Windows.Shapes;
 
 namespace Automate.Views
 {
-    /// <summary>
-    /// Logique d'interaction pour AccueilWindow.xaml
-    /// </summary>
-    public partial class AccueilWindow : Window
+    public partial class HomeWindow : Window
     {
-        public AccueilWindow()
+        public HomeWindow()
         {
             InitializeComponent();
-            DataContext = new HomeViewModel(this);
+            DataContext = new HomeViewModel(this, new NavigationService());
         }
     }
 }

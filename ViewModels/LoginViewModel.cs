@@ -1,4 +1,5 @@
-﻿using Automate.Utils.LocalServices;
+﻿using Automate.Utils;
+using Automate.Utils.LocalServices;
 using Automate.Utils.Services;
 using Automate.Views;
 using System;
@@ -95,8 +96,8 @@ namespace Automate.ViewModels
 
             if (!HasErrors)
             {
-                var user = _userService.Authenticate(Username, Password);
-                if (user == null)
+                _userService.Authenticate(Username, Password);
+                if (Env.authenticatedUser == null)
                 {
                     AddError(nameof(Username), "Nom d'utilisateur ou mot de passe invalide");
                     AddError(nameof(Password), "");
@@ -104,7 +105,7 @@ namespace Automate.ViewModels
                 }
                 else
                 {
-                    _navigationService.OpenNewView<AccueilWindow>();
+                    _navigationService.OpenNewView<HomeWindow>();
                     _navigationService.CloseCurrentView(_window);
                     Trace.WriteLine("logged in");
                 }
