@@ -1,6 +1,8 @@
 ﻿using Automate.Models;
+using Automate.Utils.LocalServices;
 using Automate.Utils.Services;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,29 +14,33 @@ using System.Windows.Input;
 
 namespace Automate.ViewModels
 {
-    public class CalendarViewModel : INotifyPropertyChanged
+    public class CalendarViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private DateTime _selectedDate;
         private string? _taskDescription;
         private TaskModel? _selectedTask;
         private List<TaskModel> _tasks;
+        private readonly ErrorCollection errorCollection;
         private readonly CalendarService _calendarService;
         private readonly MongoDBService _database;
         private Window _window;
 
         public ICommand AddTaskCommand { get; }
-
+        public bool HasErrors => errorCollection.errors.Count > 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+        
 
         public CalendarViewModel(Window openedWindow)
         {
+            _selectedDate = DateTime.Today;
             _tasks = new List<TaskModel>();
             _database = new MongoDBService();
             _calendarService = new CalendarService(_database);
             AddTaskCommand = new RelayCommand(AddTask);
-            _selectedDate = DateTime.Today;
             Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            errorCollection = new ErrorCollection();
             _window = openedWindow;
         }
 
@@ -79,10 +85,27 @@ namespace Automate.ViewModels
             }
         }
 
+        public string ErrorMessages
+        {
+            get { return errorCollection.FormatErrorList(errorCollection.errors); }
+        }
+
+
         public void AddTask()
         {
-            TaskModel task = new TaskModel(SelectedDate, TaskDescription);
-            _calendarService.AddTask(task);
+            if(string.IsNullOrEmpty(TaskDescription))
+            {
+                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
+            }
+            else
+            {
+                RemoveError(nameof(TaskDescription));
+                TaskModel task = new TaskModel(SelectedDate, TaskDescription.Trim());
+                _calendarService.AddTask(task);
+                TaskDescription = "";
+                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            }
+
         }
 
         public void DeleteTask()
@@ -98,5 +121,28 @@ namespace Automate.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void AddError(string propertyName, string message)
+        {
+            errorCollection.AddError(propertyName, message);
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        private void RemoveError(string propertyName)
+        {
+            errorCollection.RemoveError(propertyName);
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        public IEnumerable GetErrors(string? propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return errorCollection.errors[propertyName];
+        }
     }
 }
