@@ -1,4 +1,5 @@
-﻿using Automate.Utils.Services;
+﻿using Automate.Utils.LocalServices;
+using Automate.Utils.Services;
 using Automate.Views;
 using System;
 using System.Collections;
@@ -15,35 +16,28 @@ using System.Windows.Input;
 
 namespace Automate.ViewModels
 {
-    public class LoginViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
+    public class LoginViewModel : INotifyDataErrorInfo, INotifyPropertyChanged
     {
-        //Propriétés du ViewModel
         private string? _username;
         private string? _password;
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
         private readonly NavigationService _navigationService;
         private Window _window;
-
-        private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();
-
-        //Gestionnaires d'événements 
+        private readonly ErrorCollection errorCollection;
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-
-        //commandes utilisées par l'interface
         public ICommand AuthenticateCommand { get; }
-        public bool HasErrors => _errors.Count > 0;
-        public bool HasPasswordErrors => _errors.ContainsKey(nameof(Password)) && _errors[nameof(Password)].Any();
+        public bool HasPasswordErrors => errorCollection.errors.ContainsKey(nameof(Password)) && errorCollection.errors[nameof(Password)].Any();
+        public bool HasErrors => errorCollection.errors.Count > 0;
 
-        public LoginViewModel(Window openedWindow)
+
+        public LoginViewModel(Window openedWindow, IUserService userService)
         {
-            //instanciation de la BD
-            _userService = new UserService();
+            _userService = userService;
             AuthenticateCommand = new RelayCommand(ValidateAuthentication);
-
             _navigationService = new NavigationService();
+            errorCollection = new ErrorCollection();
             _window = openedWindow;
-
         }
 
         public string? Username
@@ -51,7 +45,6 @@ namespace Automate.ViewModels
             get => _username;
             set
             {
-                //quand la valeur du textbox est modifiée, on valide les données et on avertit la vue
                 _username = value;
                 NotifyOnPropertyChanged(nameof(Username));
                 ValidateProperty(nameof(Username));
@@ -71,26 +64,28 @@ namespace Automate.ViewModels
 
         public string ErrorMessages
         {
-            get
-            {
-                return FormatErrorList(_errors);
-            }
+            get { return errorCollection.FormatErrorList(errorCollection.errors); }
         }
 
-        private string FormatErrorList(Dictionary<string, List<string>> errors)
+        private void AddError(string propertyName,  string message)
         {
-            var allErrors = new List<string>();
-            foreach (var errorList in _errors.Values)
-            {
-                allErrors.AddRange(errorList);
-            }
-            allErrors.RemoveAll(error => string.IsNullOrWhiteSpace(error));
-            return string.Join("\n", allErrors);
+            errorCollection.AddError(propertyName, message);
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
-        protected void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
+        public void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void RemoveError(string propertyName)
+        {
+            errorCollection.RemoveError(propertyName);
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         public void ValidateAuthentication()
@@ -103,8 +98,8 @@ namespace Automate.ViewModels
                 var user = _userService.Authenticate(Username, Password);
                 if (user == null)
                 {
-                    AddError("Username", "Nom d'utilisateur ou mot de passe invalide");
-                    AddError("Password", "");
+                    AddError(nameof(Username), "Nom d'utilisateur ou mot de passe invalide");
+                    AddError(nameof(Password), "");
                     Trace.WriteLine("invalid");
                 }
                 else
@@ -113,7 +108,6 @@ namespace Automate.ViewModels
                     _navigationService.CloseCurrentView(_window);
                     Trace.WriteLine("logged in");
                 }
-
             }
         }
 
@@ -145,40 +139,14 @@ namespace Automate.ViewModels
             }
         }
 
-        private void AddError(string propertyName, string errorMessage)
-        {
-            if (!_errors.ContainsKey(propertyName))
-            {
-                _errors[propertyName] = new List<string>();
-            }
-            if (!_errors[propertyName].Contains(errorMessage))
-            {
-                _errors[propertyName].Add(errorMessage);
-               ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-            }
-            NotifyOnPropertyChanged(nameof(ErrorMessages));
-            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
-        }
-
-        private void RemoveError(string propertyName)
-        {
-            if (_errors.ContainsKey(propertyName))
-            {
-                _errors.Remove(propertyName);
-               ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName)); 
-            }
-            NotifyOnPropertyChanged(nameof(ErrorMessages));
-            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
-        }
-
         public IEnumerable GetErrors(string? propertyName)
         {
-            if (string.IsNullOrEmpty(propertyName) || !_errors.ContainsKey(propertyName))
+            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
             {
                 return Enumerable.Empty<string>();
             }
 
-            return _errors[propertyName];
+            return errorCollection.errors[propertyName];
         }
 
     }
