@@ -1,6 +1,7 @@
 ﻿using Automate.Models;
 using Automate.Utils.LocalServices;
 using Automate.Utils.Services;
+using Automate.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Automate.ViewModels
         private List<TaskModel> _tasks;
         private readonly ErrorCollection errorCollection;
         private readonly CalendarService _calendarService;
+        private readonly bool _isAdmin;
         private Window _window;
 
         public ICommand AddTaskCommand { get; }
@@ -29,10 +31,10 @@ namespace Automate.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-        
 
         public CalendarViewModel(Window openedWindow, CalendarService calendarService)
         {
+            _isAdmin = Env.authenticatedUser.IsAdmin;
             _selectedDate = DateTime.Today;
             _tasks = new List<TaskModel>();
             _calendarService = calendarService;
@@ -41,6 +43,8 @@ namespace Automate.ViewModels
             errorCollection = new ErrorCollection();
             _window = openedWindow;
         }
+
+        public bool IsAdmin { get =>  _isAdmin; }
 
         public List<TaskModel> Tasks
         {
