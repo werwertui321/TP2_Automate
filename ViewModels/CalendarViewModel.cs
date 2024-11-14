@@ -27,6 +27,9 @@ namespace Automate.ViewModels
         private Window _window;
 
         public ICommand AddTaskCommand { get; }
+        public ICommand UpdateTaskCommand { get; }
+        public ICommand DeleteTaskCommand { get; }
+
         public bool HasErrors => errorCollection.errors.Count > 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -34,12 +37,14 @@ namespace Automate.ViewModels
 
         public CalendarViewModel(Window openedWindow, CalendarService calendarService)
         {
+            _calendarService = calendarService;
             _isAdmin = Env.authenticatedUser.IsAdmin;
             _selectedDate = DateTime.Today;
-            _calendarService = calendarService;
             AddTaskCommand = new RelayCommand(AddTask);
-            Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            UpdateTaskCommand = new RelayCommand(UpdateTask);
+            DeleteTaskCommand = new RelayCommand(DeleteTask);
             errorCollection = new ErrorCollection();
+            Tasks = _calendarService.GetTasksByDate(SelectedDate);
             _window = openedWindow;
         }
 
@@ -86,8 +91,6 @@ namespace Automate.ViewModels
             }
         }
 
-
-
         public void AddTask()
         {
             if(string.IsNullOrEmpty(TaskDescription))
@@ -104,11 +107,42 @@ namespace Automate.ViewModels
             }
         }
 
+        public void UpdateTask()
+        {
+            bool isValid = true;
+            RemoveError(nameof(TaskDescription));
+            RemoveError(nameof(SelectedTask));
+            if (string.IsNullOrEmpty(TaskDescription))
+            {
+                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
+                isValid = false;
+            }
+
+            if (SelectedTask is null)
+            {
+                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir modifier");
+                isValid = false;
+            }
+
+            if (isValid)
+            {
+                _calendarService.UpdateTask(TaskDescription, SelectedTask.Id);
+                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                TaskDescription = "";
+            }
+        }
+
         public void DeleteTask()
         {
             if(_selectedTask is not null)
             {
-                _calendarService.DeleteTask(SelectedTask.Id.ToString());
+                RemoveError(nameof(TaskDescription));
+                _calendarService.DeleteTask(SelectedTask.Id);
+                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            }
+            else
+            {
+                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
             }
         }
 

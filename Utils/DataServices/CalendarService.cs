@@ -18,9 +18,9 @@ namespace Automate.Utils.Services
 
         public void AddTask(TaskModel task);
         
-        public void UpdateTask(string newTaskDescription, string taskId);
+        public void UpdateTask(string newTaskDescription, ObjectId taskId);
 
-        public void DeleteTask(string taskId);
+        public void DeleteTask(ObjectId taskId);
     }
     public class CalendarService : ICalendarService
     {
@@ -79,11 +79,11 @@ namespace Automate.Utils.Services
             }
         }
 
-        public void UpdateTask(string newTaskDescription, string taskId)
+        public void UpdateTask(string newTaskDescription, ObjectId taskId)
         {
             try
             {
-                if (string.IsNullOrEmpty(taskId))
+                if (taskId == ObjectId.Empty)
                     throw new ArgumentException("L'identifiant de la tâche à modifier ne doit pas être vide");
 
                 if (string.IsNullOrEmpty(newTaskDescription))
@@ -102,11 +102,11 @@ namespace Automate.Utils.Services
             }
         }
 
-        public void DeleteTask(string taskId)
+        public void DeleteTask(ObjectId taskId)
         {
             try
             {
-                if (string.IsNullOrEmpty(taskId))
+                if (taskId == ObjectId.Empty)
                     throw new ArgumentException("L'identifiant de la tâche à supprimer ne doit pas être vide");
 
                 var filter = Builders<TaskModel>.Filter.Eq("_id", taskId);
