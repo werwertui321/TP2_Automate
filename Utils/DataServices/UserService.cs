@@ -11,28 +11,28 @@ namespace Automate.Utils.Services
 {
     public interface IUserService
     {
-        UserModel Authenticate(string? username, string? password);
+        void Authenticate(string? username, string? password);
 
-        void RegisterUser(UserModel user);
+        void RegisterUser(User user);
     }
 
     public class UserService : IUserService
     {
-        private readonly IMongoCollection<UserModel> _users;
+        private readonly IMongoCollection<User> _users;
+        private readonly MongoDBService _db;
         private const string COLLECTION_NAME = "Users";
 
-        public UserService()
+        public UserService(MongoDBService db)
         {
-            MongoDBService database = new MongoDBService();
-            _users = database.GetCollection<UserModel>(COLLECTION_NAME);
+            _db = db;
+            _users = _db.GetCollection<User>(COLLECTION_NAME);
         }
 
-        public UserModel Authenticate(string? username, string? password)
+        public void Authenticate(string? username, string? password)
         {
-            var user = _users.Find(userFromDB => userFromDB.Username == username && userFromDB.Password == password).FirstOrDefault();
-            return user;
+            Env.authenticatedUser = _users.Find(userFromDB => userFromDB.Username == username && userFromDB.Password == password).FirstOrDefault();
         }
-        public void RegisterUser(UserModel user)
+        public void RegisterUser(User user)
         {
             _users.InsertOne(user);
         }

@@ -1,5 +1,5 @@
 ﻿using Automate.ViewModels;
-using Automate.Utils.LocalServices;
+using Automate.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +16,12 @@ using System.Windows.Shapes;
 
 namespace Automate.Views
 {
-    public partial class HomeWindow : Window
+    public partial class CalendarWindow : Window
     {
-        public HomeWindow()
+        public CalendarWindow()
         {
             InitializeComponent();
-            DataContext = new HomeViewModel(this, new NavigationService());
+            DataContext = new CalendarViewModel(this, Env.calendarService);
         }
     }
 }

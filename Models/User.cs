@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Automate.Models
 {
-    public class UserModel
+    public class User
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -19,7 +19,7 @@ namespace Automate.Models
         [BsonElement("Password")]
         public string? Password { get; set; }
 
-        [BsonElement("Role")]
-        public string? Role { get; set; }
+        [BsonElement("IsAdmin")]
+        public bool IsAdmin { get; set; }
     }
 }
