@@ -12,13 +12,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using MongoDB.Driver.Core.Connections;
 
 namespace Automate.ViewModels
 {
     public class CalendarViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private DateTime _selectedDate;
-        private string? _taskDescription;
+        private string? _taskName;
         private TaskModel? _selectedTask;
         private List<TaskModel>? _tasks;
         private readonly ErrorCollection errorCollection;
@@ -49,6 +50,11 @@ namespace Automate.ViewModels
         }
 
         public bool IsAdmin { get =>  _isAdmin; }
+
+        public List<bool> Important
+        {
+            get => CreateImportantList();
+        }
 
         public List<TaskModel> Tasks
         {
@@ -81,69 +87,104 @@ namespace Automate.ViewModels
             }
         }
 
-        public string? TaskDescription
+        public string? TaskName
         {
-            get => _taskDescription;
+            get => _taskName;
             set
             {
-                _taskDescription = value;
-                NotifyOnPropertyChanged(nameof(TaskDescription));
+                _taskName = value;
+                NotifyOnPropertyChanged(nameof(TaskName));
             }
         }
 
         public void AddTask()
         {
-            if(string.IsNullOrEmpty(TaskDescription))
+            try
             {
-                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
+                if (string.IsNullOrEmpty(TaskName))
+                {
+                    AddError(nameof(TaskName), "Le type d'évènement ne peut pas être vide");
+                }
+                else
+                {
+                    RemoveError(nameof(TaskName));
+                    TaskModel task = new TaskModel(SelectedDate, TaskName.Trim());
+                    _calendarService.AddTask(task);
+                    TaskName = "";
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                }
             }
-            else
+            catch(Exception exception)
             {
-                RemoveError(nameof(TaskDescription));
-                TaskModel task = new TaskModel(SelectedDate, TaskDescription.Trim());
-                _calendarService.AddTask(task);
-                TaskDescription = "";
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                AddError(nameof(AddTask), exception.Message);
             }
         }
 
         public void UpdateTask()
         {
-            bool isValid = true;
-            RemoveError(nameof(TaskDescription));
-            RemoveError(nameof(SelectedTask));
-            if (string.IsNullOrEmpty(TaskDescription))
+            try
             {
-                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
-                isValid = false;
+                if (ValidateUpdate())
+                {
+                    _calendarService.UpdateTask(TaskName, SelectedTask.Id);
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    TaskName = "";
+                }
+            }
+            catch (Exception exception)
+            {
+                AddError(nameof(UpdateTask), exception.Message);
+            }
+        }
+
+        public bool ValidateUpdate()
+        {
+            RemoveError(nameof(TaskName));
+            RemoveError(nameof(SelectedTask));
+            if (string.IsNullOrEmpty(TaskName))
+            {
+                AddError(nameof(TaskName), "Le type d'évènement ne peut pas être vide");
+                return false;
             }
 
             if (SelectedTask is null)
             {
-                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir modifier");
-                isValid = false;
+                AddError(nameof(SelectedTask), "Une tâche doit être sélectionner pour pouvoir modifier");
+                return false;
             }
 
-            if (isValid)
-            {
-                _calendarService.UpdateTask(TaskDescription, SelectedTask.Id);
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
-                TaskDescription = "";
-            }
+            return true;
         }
 
         public void DeleteTask()
         {
-            if(_selectedTask is not null)
+            try
             {
-                RemoveError(nameof(TaskDescription));
-                _calendarService.DeleteTask(SelectedTask.Id);
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                if (_selectedTask is not null)
+                {
+                    RemoveError(nameof(TaskName));
+                    _calendarService.DeleteTask(SelectedTask.Id);
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                }
+                else
+                {
+                    AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                }
             }
-            else
+            catch (Exception exception)
             {
-                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                AddError(nameof(DeleteTask), exception.Message);
             }
+        }
+
+        public List<bool> CreateImportantList()
+        {
+            List<bool> important = new List<bool>();
+            for (int i = 0; i < _tasks.Count; i++)
+            {
+                important[i] = _tasks[i].Important;
+            }
+            return important;
         }
 
         public string ErrorMessages

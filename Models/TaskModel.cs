@@ -13,16 +13,25 @@ namespace Automate.Models
         [BsonId]
         public ObjectId Id { get; set; }
 
-        [BsonElement("Description")]
-        public string? Description { get; set; }
+        [BsonElement("Name")]
+        public string? Name { get; set; }
 
         [BsonElement("Date")]
         public DateTime? Date { get; set; }
 
-        public TaskModel(DateTime date, string description)
+        [BsonElement("Important")]
+        public bool Important { get; set; }
+
+        public TaskModel(DateTime date, string name)
         {
-            this.Description = description;
-            this.Date = date;
+            Name = name;
+
+            Date = date;
+
+            if (name == "Arrosage" || name == "Semis")
+                Important = true;
+            else
+                Important = false;
         }
     }
     
