@@ -80,7 +80,7 @@ namespace Automate.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
+        
         private void RemoveError(string propertyName)
         {
             errorCollection.RemoveError(propertyName);
@@ -96,7 +96,7 @@ namespace Automate.ViewModels
 
             if (!HasErrors)
             {
-                _userService.Authenticate(Username, Password);
+                Env.authenticatedUser = _userService.Authenticate(Username, Password);
                 if (Env.authenticatedUser == null)
                 {
                     AddError(nameof(Username), "Nom d'utilisateur ou mot de passe invalide");
