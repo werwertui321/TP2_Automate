@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Automate.Utils.Services
 {
@@ -21,6 +22,7 @@ namespace Automate.Utils.Services
         private readonly IMongoCollection<User> _users;
         private readonly MongoDBService _db;
         private const string COLLECTION_NAME = "Users";
+        private const string SALT = "$2a$11$egT6RJKZt3HP.sYYf/Xdw.";
 
         public UserService(MongoDBService db)
         {
@@ -30,7 +32,8 @@ namespace Automate.Utils.Services
 
         public void Authenticate(string? username, string? password)
         {
-            Env.authenticatedUser = _users.Find(userFromDB => userFromDB.Username == username && userFromDB.Password == password).FirstOrDefault();
+            string hashedPassword = BC.HashPassword(password, SALT);
+            Env.authenticatedUser = _users.Find(userFromDB => userFromDB.Username == username && userFromDB.Password == hashedPassword).FirstOrDefault();
         }
         public void RegisterUser(User user)
         {
