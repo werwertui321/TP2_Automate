@@ -35,9 +35,5 @@ namespace Automate.Utils.Services
             string hashedPassword = BC.HashPassword(password, SALT);
             Env.authenticatedUser = _users.Find(userFromDB => userFromDB.Username == username && userFromDB.Password == hashedPassword).FirstOrDefault();
         }
-        public void RegisterUser(User user)
-        {
-            _users.InsertOne(user);
-        }
     }
 }
