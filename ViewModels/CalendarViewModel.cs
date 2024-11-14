@@ -20,7 +20,7 @@ namespace Automate.ViewModels
         private DateTime _selectedDate;
         private string? _taskDescription;
         private TaskModel? _selectedTask;
-        private List<TaskModel> _tasks;
+        private List<TaskModel>? _tasks;
         private readonly ErrorCollection errorCollection;
         private readonly CalendarService _calendarService;
         private readonly bool _isAdmin;
@@ -36,7 +36,6 @@ namespace Automate.ViewModels
         {
             _isAdmin = Env.authenticatedUser.IsAdmin;
             _selectedDate = DateTime.Today;
-            _tasks = new List<TaskModel>();
             _calendarService = calendarService;
             AddTaskCommand = new RelayCommand(AddTask);
             Tasks = _calendarService.GetTasksByDate(SelectedDate);
@@ -87,10 +86,6 @@ namespace Automate.ViewModels
             }
         }
 
-        public string ErrorMessages
-        {
-            get { return errorCollection.FormatErrorList(errorCollection.errors); }
-        }
 
 
         public void AddTask()
@@ -107,7 +102,6 @@ namespace Automate.ViewModels
                 TaskDescription = "";
                 Tasks = _calendarService.GetTasksByDate(SelectedDate);
             }
-
         }
 
         public void DeleteTask()
@@ -116,6 +110,11 @@ namespace Automate.ViewModels
             {
                 _calendarService.DeleteTask(SelectedTask.Id.ToString());
             }
+        }
+
+        public string ErrorMessages
+        {
+            get { return errorCollection.FormatErrorList(errorCollection.errors); }
         }
 
         protected void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
