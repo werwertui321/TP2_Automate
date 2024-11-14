@@ -13,8 +13,6 @@ namespace Automate.Utils.Services
     public interface IUserService
     {
         void Authenticate(string? username, string? password);
-
-        void RegisterUser(User user);
     }
 
     public class UserService : IUserService
