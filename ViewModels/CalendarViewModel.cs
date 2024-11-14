@@ -12,13 +12,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using MongoDB.Driver.Core.Connections;
 
 namespace Automate.ViewModels
 {
     public class CalendarViewModel : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private DateTime _selectedDate;
-        private string? _taskDescription;
+        private string? _taskName;
         private TaskModel? _selectedTask;
         private List<TaskModel>? _tasks;
         private readonly ErrorCollection errorCollection;
@@ -49,6 +50,11 @@ namespace Automate.ViewModels
         }
 
         public bool IsAdmin { get =>  _isAdmin; }
+
+        public List<bool> Important
+        {
+            get => CreateImportantList();
+        }
 
         public List<TaskModel> Tasks
         {
@@ -81,28 +87,28 @@ namespace Automate.ViewModels
             }
         }
 
-        public string? TaskDescription
+        public string? TaskName
         {
-            get => _taskDescription;
+            get => _taskName;
             set
             {
-                _taskDescription = value;
-                NotifyOnPropertyChanged(nameof(TaskDescription));
+                _taskName = value;
+                NotifyOnPropertyChanged(nameof(TaskName));
             }
         }
 
         public void AddTask()
         {
-            if(string.IsNullOrEmpty(TaskDescription))
+            if(string.IsNullOrEmpty(TaskName))
             {
-                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
+                AddError(nameof(TaskName), "La description ne peut pas être vide");
             }
             else
             {
-                RemoveError(nameof(TaskDescription));
-                TaskModel task = new TaskModel(SelectedDate, TaskDescription.Trim());
+                RemoveError(nameof(TaskName));
+                TaskModel task = new TaskModel(SelectedDate, TaskName.Trim());
                 _calendarService.AddTask(task);
-                TaskDescription = "";
+                TaskName = "";
                 Tasks = _calendarService.GetTasksByDate(SelectedDate);
             }
         }
@@ -110,11 +116,11 @@ namespace Automate.ViewModels
         public void UpdateTask()
         {
             bool isValid = true;
-            RemoveError(nameof(TaskDescription));
+            RemoveError(nameof(TaskName));
             RemoveError(nameof(SelectedTask));
-            if (string.IsNullOrEmpty(TaskDescription))
+            if (string.IsNullOrEmpty(TaskName))
             {
-                AddError(nameof(TaskDescription), "La description ne peut pas être vide");
+                AddError(nameof(TaskName), "La description ne peut pas être vide");
                 isValid = false;
             }
 
@@ -126,9 +132,9 @@ namespace Automate.ViewModels
 
             if (isValid)
             {
-                _calendarService.UpdateTask(TaskDescription, SelectedTask.Id);
+                _calendarService.UpdateTask(TaskName, SelectedTask.Id);
                 Tasks = _calendarService.GetTasksByDate(SelectedDate);
-                TaskDescription = "";
+                TaskName = "";
             }
         }
 
@@ -136,7 +142,7 @@ namespace Automate.ViewModels
         {
             if(_selectedTask is not null)
             {
-                RemoveError(nameof(TaskDescription));
+                RemoveError(nameof(TaskName));
                 _calendarService.DeleteTask(SelectedTask.Id);
                 Tasks = _calendarService.GetTasksByDate(SelectedDate);
             }
@@ -144,6 +150,16 @@ namespace Automate.ViewModels
             {
                 AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
             }
+        }
+
+        public List<bool> CreateImportantList()
+        {
+            List<bool> important = new List<bool>();
+            for (int i = 0; i < _tasks.Count; i++)
+            {
+                important[i] = _tasks[i].Important;
+            }
+            return important;
         }
 
         public string ErrorMessages

@@ -14,11 +14,11 @@ namespace Automate.Utils.Services
 {
     public interface ICalendarService
     {
-        public List<TaskModel> GetTasksByDate(DateTime? date);
+        public List<TaskModel>? GetTasksByDate(DateTime? date);
 
         public void AddTask(TaskModel task);
         
-        public void UpdateTask(string newTaskDescription, ObjectId taskId);
+        public void UpdateTask(string newTaskName, ObjectId taskId);
 
         public void DeleteTask(ObjectId taskId);
     }
@@ -34,12 +34,12 @@ namespace Automate.Utils.Services
             _tasks = database.GetCollection<TaskModel>(COLLECTION_NAME);
         }
 
-        public List<TaskModel> GetTasksByDate(DateTime? date)
+        public List<TaskModel>? GetTasksByDate(DateTime? date)
         {
             try
             {
                 if (date is null)
-                    throw new ArgumentException("la date ne peut pas être null.");
+                    return null;
 
                 var filter = Builders<TaskModel>.Filter.Eq("Date", date);
                 var tasks = _tasks.Find(filter).ToList();
@@ -65,7 +65,7 @@ namespace Automate.Utils.Services
                 if (task.Date is null)
                     throw new ArgumentException("La date de la tâche ne doit pas être null.");
 
-                if (string.IsNullOrEmpty(task.Description))
+                if (string.IsNullOrEmpty(task.Name))
                     throw new ArgumentException("La description de la tâche ne doit pas être null.");
 
                 _tasks.InsertOne(task);
@@ -79,18 +79,24 @@ namespace Automate.Utils.Services
             }
         }
 
-        public void UpdateTask(string newTaskDescription, ObjectId taskId)
+        public void UpdateTask(string newTaskName, ObjectId taskId)
         {
             try
             {
                 if (taskId == ObjectId.Empty)
                     throw new ArgumentException("L'identifiant de la tâche à modifier ne doit pas être vide");
 
-                if (string.IsNullOrEmpty(newTaskDescription))
+                if (string.IsNullOrEmpty(newTaskName))
                     throw new ArgumentException("La nouvelle tâche ne doit pas être vide.");
 
+                bool important;
+                if (newTaskName == "Arrosage" || newTaskName == "Semis")
+                    important = true;
+                else
+                    important = false;
+
                 var filter = Builders<TaskModel>.Filter.Eq("_id", taskId);
-                var update = Builders<TaskModel>.Update.Set("Description", newTaskDescription);
+                var update = Builders<TaskModel>.Update.Set("Name", newTaskName).Set("Important", important);
                 _tasks.UpdateOne(filter, update);
             }
             catch(Exception e)

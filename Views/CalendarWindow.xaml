@@ -15,12 +15,28 @@
         ui:WindowHelper.UseModernWindowStyle="True">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <utils:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
     <Grid>
         <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" SelectedDate="{Binding SelectedDate, UpdateSourceTrigger=PropertyChanged}"/>
-        <ListBox Margin="400,57,34,222" ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Description" SelectedItem="{Binding SelectedTask}"/>
+        
+        <ListBox Margin="400,57,34,222" ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTask}">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Background" Value="{Binding Important, Converter={StaticResource BoolToColorConverter}}"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
         <Grid x:Name="AdminControls" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <TextBox Name="taskTextBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="400,0,0,170" Width="366" Height="33" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="{Binding TaskDescription, UpdateSourceTrigger=PropertyChanged}"/>
+            <ComboBox Text="{Binding TaskName}" Margin="400,281,0,0" Width="366">
+                <ComboBoxItem>Semis</ComboBoxItem>
+                <ComboBoxItem>Rempotage</ComboBoxItem>
+                <ComboBoxItem>Entretien</ComboBoxItem>
+                <ComboBoxItem>Arrosage</ComboBoxItem>
+                <ComboBoxItem>Récolte</ComboBoxItem>
+                <ComboBoxItem>Commande</ComboBoxItem>
+                <ComboBoxItem>Évènements spéciaux</ComboBoxItem>
+            </ComboBox>
             <Button Content="Ajouter une Tâche" Margin="400,319,0,0" Width="178" Height="30" VerticalAlignment="Top" Command="{Binding AddTaskCommand}"/>
             <Button Content="Modifier la Tâche" Margin="583,319,0,0" Width="183" Height="30" VerticalAlignment="Top" Command="{Binding UpdateTaskCommand}"/>
             <Button Content="Supprimer Tâche" VerticalAlignment="Bottom" Margin="400,0,0,76" Width="366" Height="30" Command="{Binding DeleteTaskCommand}"/>
@@ -30,6 +46,7 @@
             Margin="383,413,0,10"
             HorizontalAlignment="Left"
             TextAlignment="Center"/>
+            <TextBlock HorizontalAlignment="Left" Margin="400,260,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="fr-ca" Text="Type d'évènement"/><LineBreak/><Run Language="fr-ca"/></TextBlock>
         </Grid>
     </Grid>
 </Window>

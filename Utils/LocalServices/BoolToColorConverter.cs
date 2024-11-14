@@ -18,7 +18,7 @@ namespace Automate.Utils
 
             if (value is bool boolValue)
             {
-                SolidColorBrush? red = new BrushConverter().ConvertFrom("#c50500") as SolidColorBrush;
+                SolidColorBrush? red = new BrushConverter().ConvertFrom("#ff050d") as SolidColorBrush;
 
                 return boolValue ? red! : defaultColor;
             }
