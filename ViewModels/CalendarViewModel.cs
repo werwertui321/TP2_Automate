@@ -99,56 +99,81 @@ namespace Automate.ViewModels
 
         public void AddTask()
         {
-            if(string.IsNullOrEmpty(TaskName))
+            try
             {
-                AddError(nameof(TaskName), "La description ne peut pas être vide");
+                if (string.IsNullOrEmpty(TaskName))
+                {
+                    AddError(nameof(TaskName), "Le type d'évènement ne peut pas être vide");
+                }
+                else
+                {
+                    RemoveError(nameof(TaskName));
+                    TaskModel task = new TaskModel(SelectedDate, TaskName.Trim());
+                    _calendarService.AddTask(task);
+                    TaskName = "";
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                }
             }
-            else
+            catch(Exception exception)
             {
-                RemoveError(nameof(TaskName));
-                TaskModel task = new TaskModel(SelectedDate, TaskName.Trim());
-                _calendarService.AddTask(task);
-                TaskName = "";
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                AddError(nameof(AddTask), exception.Message);
             }
         }
 
         public void UpdateTask()
         {
-            bool isValid = true;
+            try
+            {
+                if (ValidateUpdate())
+                {
+                    _calendarService.UpdateTask(TaskName, SelectedTask.Id);
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    TaskName = "";
+                }
+            }
+            catch (Exception exception)
+            {
+                AddError(nameof(UpdateTask), exception.Message);
+            }
+        }
+
+        public bool ValidateUpdate()
+        {
             RemoveError(nameof(TaskName));
             RemoveError(nameof(SelectedTask));
             if (string.IsNullOrEmpty(TaskName))
             {
-                AddError(nameof(TaskName), "La description ne peut pas être vide");
-                isValid = false;
+                AddError(nameof(TaskName), "Le type d'évènement ne peut pas être vide");
+                return false;
             }
 
             if (SelectedTask is null)
             {
-                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir modifier");
-                isValid = false;
+                AddError(nameof(SelectedTask), "Une tâche doit être sélectionner pour pouvoir modifier");
+                return false;
             }
 
-            if (isValid)
-            {
-                _calendarService.UpdateTask(TaskName, SelectedTask.Id);
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
-                TaskName = "";
-            }
+            return true;
         }
 
         public void DeleteTask()
         {
-            if(_selectedTask is not null)
+            try
             {
-                RemoveError(nameof(TaskName));
-                _calendarService.DeleteTask(SelectedTask.Id);
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                if (_selectedTask is not null)
+                {
+                    RemoveError(nameof(TaskName));
+                    _calendarService.DeleteTask(SelectedTask.Id);
+                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                }
+                else
+                {
+                    AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                }
             }
-            else
+            catch (Exception exception)
             {
-                AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                AddError(nameof(DeleteTask), exception.Message);
             }
         }
 
