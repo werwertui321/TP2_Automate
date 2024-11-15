@@ -4,7 +4,7 @@ using System.Linq;
 using BC = BCrypt.Net.BCrypt;
 using Automate.Interfaces;
 
-namespace Automate.Utils.Services
+namespace Automate.Utils.DataServices
 {
     public class UserService : IUserService
     {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Automate.Interfaces;
 
-namespace Automate.Utils.Services
+namespace Automate.Utils.DataServices
 {
     public class CalendarService : ICalendarService
     {
