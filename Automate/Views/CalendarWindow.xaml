@@ -18,8 +18,8 @@
     </Window.Resources>
     <Grid>
         <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" SelectedDate="{Binding SelectedDate, UpdateSourceTrigger=PropertyChanged}"/>
-        
-        <ListBox Margin="400,57,34,222" ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTask}">
+
+        <ListBox Margin="400,57,35,222" ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedTask}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="Background" Value="{Binding Important, Converter={StaticResource BoolToColorConverter}}"/>
@@ -46,6 +46,9 @@
             HorizontalAlignment="Left"
             TextAlignment="Center"/>
             <TextBlock HorizontalAlignment="Left" Margin="400,260,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="fr-ca" Text="Type d'évènement"/><LineBreak/><Run Language="fr-ca"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="188,395,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="fr-ca" Text="Légende" FontWeight="Bold"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="198,416,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="fr-ca" Text="Important"/><LineBreak/><Run Language="fr-ca"/></TextBlock>
+            <TextBlock Background="Red" HorizontalAlignment="Left" Margin="170,419,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="12" Width="23"/>
         </Grid>
     </Grid>
 </Window>
