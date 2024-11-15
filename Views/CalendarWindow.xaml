@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Automate"
-        xmlns:utils="clr-namespace:Automate.Utils"
+        xmlns:localServices="clr-namespace:Automate.Utils.LocalServices"
         xmlns:sys="clr-namespace:System;assembly=mscorlib" 
         xmlns:viewmodels="clr-namespace:Automate.ViewModels"
         xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
@@ -14,7 +14,7 @@
         ui:WindowHelper.UseModernWindowStyle="True">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <utils:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <localServices:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
     <Grid>
         <Calendar Name="calendar" VerticalAlignment="Top" Margin="61,52,0,0" SelectedDate="{Binding SelectedDate, UpdateSourceTrigger=PropertyChanged}"/>
