@@ -1,14 +1,11 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Automate.Interfaces;
 
 namespace Automate.Models
 {
-    public class TaskModel
+    public class AutomateTask : IAutomateTask
     {
         [BsonId]
         public ObjectId Id { get; set; }
@@ -22,7 +19,7 @@ namespace Automate.Models
         [BsonElement("Important")]
         public bool Important { get; set; }
 
-        public TaskModel(DateTime date, string name)
+        public AutomateTask(DateTime date, string name)
         {
             Name = name;
 

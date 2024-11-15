@@ -1,50 +1,36 @@
 ﻿using Automate.Models;
-using Microsoft.VisualBasic;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Xml.Linq;
+using Automate.Interfaces;
 
 namespace Automate.Utils.Services
 {
-    public interface ICalendarService
-    {
-        public List<TaskModel>? GetTasksByDate(DateTime? date);
-
-        public void AddTask(TaskModel task);
-
-        public void UpdateTask(string newTaskName, ObjectId taskId);
-
-        public void DeleteTask(ObjectId taskId);
-    }
     public class CalendarService : ICalendarService
     {
-        private readonly IMongoCollection<TaskModel> _tasks;
+        private readonly IMongoCollection<AutomateTask> _tasks;
         private const string COLLECTION_NAME = "Tasks";
         private readonly MongoDBService database;
 
         public CalendarService(MongoDBService database)
         {
             this.database = database;
-            _tasks = database.GetCollection<TaskModel>(COLLECTION_NAME);
+            _tasks = database.GetCollection<AutomateTask>(COLLECTION_NAME);
         }
 
-        public List<TaskModel>? GetTasksByDate(DateTime? date)
+        public List<AutomateTask>? GetTasksByDate(DateTime? date)
         {
             if (date is null)
                 return null;
 
-            var filter = Builders<TaskModel>.Filter.Eq("Date", date);
+            var filter = Builders<AutomateTask>.Filter.Eq("Date", date);
             var tasks = _tasks.Find(filter).ToList();
             return tasks;
         }
 
-        public void AddTask(TaskModel task)
+        public void AddTask(AutomateTask task)
         {
             if (task is null)
                 throw new ArgumentException("La tâche ne peut pas être null");
@@ -72,8 +58,8 @@ namespace Automate.Utils.Services
             else
                 important = false;
 
-            var filter = Builders<TaskModel>.Filter.Eq("_id", taskId);
-            var update = Builders<TaskModel>.Update.Set("Name", newTaskName).Set("Important", important);
+            var filter = Builders<AutomateTask>.Filter.Eq("_id", taskId);
+            var update = Builders<AutomateTask>.Update.Set("Name", newTaskName).Set("Important", important);
             _tasks.UpdateOne(filter, update);
         }
 
@@ -82,7 +68,7 @@ namespace Automate.Utils.Services
             if (taskId == ObjectId.Empty)
                 throw new ArgumentException("L'identifiant de la tâche à supprimer ne doit pas être vide");
 
-            var filter = Builders<TaskModel>.Filter.Eq("_id", taskId);
+            var filter = Builders<AutomateTask>.Filter.Eq("_id", taskId);
             _tasks.DeleteOne(filter);
         }
     }

@@ -12,11 +12,11 @@ namespace Automate.ViewModels
 {
     class HomeViewModel
     {
-        private readonly NavigationService _navigationService;
+        private readonly NavigationUtils _navigationService;
         public ICommand GoToCalendarCommand { get; }
 
         private Window _window;
-        public HomeViewModel(Window openedWindow, NavigationService navigationService)
+        public HomeViewModel(Window openedWindow, NavigationUtils navigationService)
         {
             GoToCalendarCommand = new RelayCommand(GotoCalendarView);
             _navigationService = navigationService;

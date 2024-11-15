@@ -21,7 +21,7 @@ namespace Automate.Views
         public HomeWindow()
         {
             InitializeComponent();
-            DataContext = new HomeViewModel(this, new NavigationService());
+            DataContext = new HomeViewModel(this, new NavigationUtils());
         }
     }
 }

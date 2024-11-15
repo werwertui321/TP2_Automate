@@ -1,18 +1,14 @@
 ﻿using Automate.Utils;
 using Automate.Utils.LocalServices;
-using Automate.Utils.Services;
 using Automate.Views;
+using Automate.Interfaces;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Automate.ViewModels
@@ -22,23 +18,23 @@ namespace Automate.ViewModels
         private string? _username;
         private string? _password;
         private readonly IUserService _userService;
-        private readonly NavigationService _navigationService;
+        private readonly NavigationUtils _navigationService;
         private Window _window;
-        private readonly ErrorCollection errorCollection;
+        private readonly ErrorCollection _errorCollection;
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public ICommand AuthenticateCommand { get; }
-        public bool HasPasswordErrors => errorCollection.errors.ContainsKey(nameof(Password)) && errorCollection.errors[nameof(Password)].Any();
-        public bool HasErrors => errorCollection.errors.Count > 0;
+        public bool HasPasswordErrors => _errorCollection.errors.ContainsKey(nameof(Password)) && _errorCollection.errors[nameof(Password)].Any();
+        public bool HasErrors => _errorCollection.errors.Count > 0;
 
 
-        public LoginViewModel(Window openedWindow, IUserService userService)
+        public LoginViewModel(Window openedWindow, IUserService userService, NavigationUtils navigationUtils, ErrorCollection errorCollection)
         {
             _userService = userService;
-            AuthenticateCommand = new RelayCommand(ValidateAuthentication);
-            _navigationService = new NavigationService();
-            errorCollection = new ErrorCollection();
+            _navigationService = navigationUtils;
+            _errorCollection = errorCollection;
             _window = openedWindow;
+            AuthenticateCommand = new RelayCommand(ValidateAuthentication);
         }
 
         public string? Username
@@ -65,12 +61,12 @@ namespace Automate.ViewModels
 
         public string ErrorMessages
         {
-            get { return errorCollection.FormatErrorList(errorCollection.errors); }
+            get { return _errorCollection.FormatErrorList(_errorCollection.errors); }
         }
 
         private void AddError(string propertyName,  string message)
         {
-            errorCollection.AddError(propertyName, message);
+            _errorCollection.AddError(propertyName, message);
             NotifyOnPropertyChanged(nameof(ErrorMessages));
             NotifyOnPropertyChanged(nameof(HasPasswordErrors));
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
@@ -83,7 +79,7 @@ namespace Automate.ViewModels
         
         private void RemoveError(string propertyName)
         {
-            errorCollection.RemoveError(propertyName);
+            _errorCollection.RemoveError(propertyName);
             NotifyOnPropertyChanged(nameof(ErrorMessages));
             NotifyOnPropertyChanged(nameof(HasPasswordErrors));
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
@@ -142,12 +138,12 @@ namespace Automate.ViewModels
 
         public IEnumerable GetErrors(string? propertyName)
         {
-            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
+            if (string.IsNullOrEmpty(propertyName) || !_errorCollection.errors.ContainsKey(propertyName))
             {
                 return Enumerable.Empty<string>();
             }
 
-            return errorCollection.errors[propertyName];
+            return _errorCollection.errors[propertyName];
         }
 
     }

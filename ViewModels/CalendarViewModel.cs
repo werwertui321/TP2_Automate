@@ -20,8 +20,8 @@ namespace Automate.ViewModels
     {
         private DateTime _selectedDate;
         private string? _taskName;
-        private TaskModel? _selectedTask;
-        private List<TaskModel>? _tasks;
+        private AutomateTask? _selectedTask;
+        private List<AutomateTask>? _tasks;
         private readonly ErrorCollection errorCollection;
         private readonly CalendarService _calendarService;
         private readonly bool _isAdmin;
@@ -56,7 +56,7 @@ namespace Automate.ViewModels
             get => CreateImportantList();
         }
 
-        public List<TaskModel> Tasks
+        public List<AutomateTask> Tasks
         {
             get => _tasks;
             set
@@ -66,7 +66,7 @@ namespace Automate.ViewModels
             }
         }
 
-        public TaskModel SelectedTask
+        public AutomateTask SelectedTask
         {
             get => _selectedTask;
             set
@@ -108,7 +108,7 @@ namespace Automate.ViewModels
                 else
                 {
                     RemoveError(nameof(TaskName));
-                    TaskModel task = new TaskModel(SelectedDate, TaskName.Trim());
+                    AutomateTask task = new AutomateTask(SelectedDate, TaskName.Trim());
                     _calendarService.AddTask(task);
                     TaskName = "";
                     Tasks = _calendarService.GetTasksByDate(SelectedDate);
