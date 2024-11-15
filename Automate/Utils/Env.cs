@@ -1,4 +1,4 @@
-﻿using Automate.Models;
+﻿using Automate.Interfaces;
 using Automate.Utils.DataServices;
 
 namespace Automate.Utils
@@ -8,6 +8,6 @@ namespace Automate.Utils
         public readonly static MongoDBService mongoDBService = new MongoDBService();
         public readonly static UserService userService = new UserService(mongoDBService);
         public readonly static CalendarService calendarService = new CalendarService(mongoDBService);
-        public static User? authenticatedUser;
+        public static IUser? authenticatedUser;
     }
 }

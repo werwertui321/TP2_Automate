@@ -31,6 +31,7 @@ namespace Automate.Utils.DataServices
                 return null;
             }
 
+            Env.authenticatedUser = user;
             return user;
         }
 
