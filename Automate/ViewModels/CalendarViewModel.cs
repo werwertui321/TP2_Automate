@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
-
+using Automate.Interfaces;
 
 namespace Automate.ViewModels
 {
@@ -21,7 +21,7 @@ namespace Automate.ViewModels
         private AutomateTask? _selectedTask;
         private List<AutomateTask>? _tasks;
         private readonly ErrorCollection errorCollection;
-        private readonly CalendarService _calendarService;
+        private readonly ICalendarService _calendarService;
         private readonly bool _isAdmin;
         private Window _window;
 
@@ -34,16 +34,16 @@ namespace Automate.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        public CalendarViewModel(Window openedWindow, CalendarService calendarService)
+        public CalendarViewModel(Window openedWindow, ICalendarService calendarService, bool isAdmin)
         {
             _calendarService = calendarService;
-            _isAdmin = Env.authenticatedUser.IsAdmin;
+            _isAdmin = isAdmin;
             _selectedDate = DateTime.Today;
             AddTaskCommand = new RelayCommand(AddTask);
             UpdateTaskCommand = new RelayCommand(UpdateTask);
             DeleteTaskCommand = new RelayCommand(DeleteTask);
             errorCollection = new ErrorCollection();
-            Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            GetTaskForSelectedDay();
             _window = openedWindow;
         }
 
@@ -81,7 +81,7 @@ namespace Automate.ViewModels
             {
                 _selectedDate = value;
                 NotifyOnPropertyChanged(nameof(SelectedDate));
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                GetTaskForSelectedDay();
             }
         }
 
@@ -109,7 +109,7 @@ namespace Automate.ViewModels
                     AutomateTask task = new AutomateTask(SelectedDate, TaskName.Trim());
                     _calendarService.AddTask(task);
                     TaskName = "";
-                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    GetTaskForSelectedDay();
                 }
             }
             catch(Exception exception)
@@ -125,7 +125,7 @@ namespace Automate.ViewModels
                 if (ValidateUpdate())
                 {
                     _calendarService.UpdateTask(TaskName, SelectedTask.Id);
-                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    GetTaskForSelectedDay();
                     TaskName = "";
                 }
             }
@@ -162,17 +162,22 @@ namespace Automate.ViewModels
                 {
                     RemoveError(nameof(TaskName));
                     _calendarService.DeleteTask(SelectedTask.Id);
-                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    GetTaskForSelectedDay();
                 }
                 else
                 {
-                    AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                    AddError(nameof(SelectedTask), "Une tâche doit être sélectionner pour pouvoir supprimer");
                 }
             }
             catch (Exception exception)
             {
                 AddError(nameof(DeleteTask), exception.Message);
             }
+        }
+
+        public void GetTaskForSelectedDay()
+        {
+            Tasks = _calendarService.GetTasksByDate(SelectedDate);
         }
 
         public List<bool> CreateImportantList()

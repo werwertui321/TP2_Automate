@@ -1,0 +1,117 @@
+﻿using Automate.Interfaces;
+using Automate.Models;
+using Automate.ViewModels;
+using Moq;
+using System;
+using System.Linq;
+using System.Windows;
+
+namespace AutomateTests
+{
+    [Apartment(ApartmentState.STA)]
+    public class CalendarViewModelTests
+    {
+        private Mock<ICalendarService> _calendarService;
+        private Mock<Window> _mockWindow;
+        private CalendarViewModel _viewModel;
+
+        [SetUp]
+        public void Setup()
+        {
+            _calendarService = new Mock<ICalendarService>();
+            _mockWindow = new Mock<Window>();
+            _viewModel = new CalendarViewModel(_mockWindow.Object, _calendarService.Object, true);
+        }
+
+        [Test]
+        public void AddTask_TaskNameVide_AddError()
+        {
+            _viewModel.TaskName = string.Empty;
+
+            _viewModel.AddTask();
+
+            Assert.That(_viewModel.ErrorMessages, Does.Contain("Le type d'évènement ne peut pas être vide"));
+        }
+
+        [Test]
+        public void AddTask_WithValidTaskName()
+        {
+            _viewModel.TaskName = "Semis";
+
+            _viewModel.AddTask();
+
+            Assert.That(_viewModel.TaskName, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+        public void ValidateUpdate_withValidInput()
+        {
+            _viewModel.TaskName = "Semis";
+            _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
+
+            Assert.That(_viewModel.ValidateUpdate(), Is.EqualTo(true));
+        }
+
+        [Test]
+        public void ValidateUpdate_withInvalidTaskName()
+        {
+            _viewModel.TaskName = string.Empty;
+            _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
+
+            Assert.That(_viewModel.ValidateUpdate(), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void ValidateUpdate_withInvalidSelectedTask()
+        {
+            _viewModel.TaskName = "Semis";
+            _viewModel.SelectedTask = null;
+
+            Assert.That(_viewModel.ValidateUpdate(), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void UpdateTask_withValidInput()
+        {
+            _viewModel.TaskName = "Semis";
+            _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
+
+            _viewModel.UpdateTask();
+
+            Assert.That(_viewModel.TaskName, Is.EqualTo(string.Empty));
+        }
+
+
+        [Test]
+        public void UpdateTask_withInvalidTaskName()
+        {
+            _viewModel.TaskName = string.Empty;
+            _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
+
+            _viewModel.UpdateTask();
+
+            Assert.That(_viewModel.ErrorMessages, Does.Contain("Le type d'évènement ne peut pas être vide"));
+        }
+
+        [Test]
+        public void UpdateTask_withInvalidSelectedTask()
+        {
+            _viewModel.TaskName = "Semis";
+            _viewModel.SelectedTask = null;
+
+            _viewModel.UpdateTask();
+
+            Assert.That(_viewModel.ErrorMessages, Does.Contain("Une tâche doit être sélectionner pour pouvoir modifier"));
+        }
+
+        [Test]
+        public void DeleteTask_WithInvalidSelectedTask()
+        {
+            _viewModel.SelectedTask = null;
+
+            _viewModel.DeleteTask();
+
+            Assert.That(_viewModel.ErrorMessages, Does.Contain("Une tâche doit être sélectionner pour pouvoir supprimer"));
+        }
+    }
+}
