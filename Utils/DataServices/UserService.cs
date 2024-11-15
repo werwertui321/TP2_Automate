@@ -1,21 +1,11 @@
 ﻿using Automate.Models;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BC = BCrypt.Net.BCrypt;
+using Automate.Interfaces;
 
-namespace Automate.Utils.Services
+namespace Automate.Utils.DataServices
 {
-    public interface IUserService
-    {
-        User? Authenticate(string? username, string? password);
-
-    }
-
     public class UserService : IUserService
     {
         private readonly IMongoCollection<User> _users;

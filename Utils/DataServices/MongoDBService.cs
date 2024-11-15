@@ -1,12 +1,6 @@
-﻿using Automate.Models;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MongoDB.Driver;
 
-namespace Automate.Utils.Services
+namespace Automate.Utils.DataServices
 {
     public class MongoDBService
     {

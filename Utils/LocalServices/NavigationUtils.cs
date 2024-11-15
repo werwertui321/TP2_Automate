@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
+using Automate.Interfaces;
 
 namespace Automate.Utils.LocalServices
 {
-    public class NavigationService
+    public class NavigationUtils : INavigationUtils
     {
         public void OpenNewView<T>() where T : Window, new()
         {
