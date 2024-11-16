@@ -2,6 +2,7 @@
 using Automate.Models;
 using Automate.ViewModels;
 using Moq;
+using NUnit.Framework.Internal;
 using System;
 using System.Linq;
 using System.Windows;
@@ -11,21 +12,20 @@ namespace AutomateTests
     [Apartment(ApartmentState.STA)]
     public class CalendarViewModelTests
     {
-        private Mock<ICalendarService> _calendarService;
-        private Mock<Window> _mockWindow;
-        private CalendarViewModel _viewModel;
+        private Mock<ICalendarService>? _calendarService;
+        private Mock<Window>? _mockWindow;
 
-        [SetUp]
-        public void Setup()
+        public CalendarViewModel SetUp()
         {
             _calendarService = new Mock<ICalendarService>();
             _mockWindow = new Mock<Window>();
-            _viewModel = new CalendarViewModel(_mockWindow.Object, _calendarService.Object, true);
+            return new CalendarViewModel(_mockWindow.Object, _calendarService.Object, true);
         }
 
         [Test]
         public void AddTask_TaskNameVide_AddError()
         {
+            CalendarViewModel _viewModel = SetUp();
             _viewModel.TaskName = string.Empty;
 
             _viewModel.AddTask();
@@ -36,6 +36,8 @@ namespace AutomateTests
         [Test]
         public void AddTask_WithValidTaskName()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = "Semis";
 
             _viewModel.AddTask();
@@ -46,6 +48,8 @@ namespace AutomateTests
         [Test]
         public void ValidateUpdate_withValidInput()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = "Semis";
             _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
 
@@ -55,6 +59,8 @@ namespace AutomateTests
         [Test]
         public void ValidateUpdate_withInvalidTaskName()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = string.Empty;
             _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
 
@@ -64,6 +70,8 @@ namespace AutomateTests
         [Test]
         public void ValidateUpdate_withInvalidSelectedTask()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = "Semis";
             _viewModel.SelectedTask = null;
 
@@ -73,6 +81,8 @@ namespace AutomateTests
         [Test]
         public void UpdateTask_withValidInput()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = "Semis";
             _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
 
@@ -85,6 +95,8 @@ namespace AutomateTests
         [Test]
         public void UpdateTask_withInvalidTaskName()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = string.Empty;
             _viewModel.SelectedTask = new AutomateTask(DateTime.Today, "Rempotage");
 
@@ -96,6 +108,8 @@ namespace AutomateTests
         [Test]
         public void UpdateTask_withInvalidSelectedTask()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.TaskName = "Semis";
             _viewModel.SelectedTask = null;
 
@@ -107,11 +121,57 @@ namespace AutomateTests
         [Test]
         public void DeleteTask_WithInvalidSelectedTask()
         {
+            CalendarViewModel _viewModel = SetUp();
+
             _viewModel.SelectedTask = null;
 
             _viewModel.DeleteTask();
 
             Assert.That(_viewModel.ErrorMessages, Does.Contain("Une tâche doit être sélectionner pour pouvoir supprimer"));
         }
+
+
+        [Test]
+        public void AddError_HasErrorIsTrue()
+        {
+            CalendarViewModel _viewModel = SetUp();
+
+            _viewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
+
+            Assert.That(_viewModel.HasErrors, Is.True);
+        }
+
+        [Test]
+        public void AddError_AddsErrorToErrorCollection()
+        {
+            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+
+            loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
+
+            Assert.That(loginViewModel._errorCollection.Errors.ContainsKey(PROPERTY_NAME), Is.True);
+        }
+
+        [Test]
+        public void RemoveError_HasErrorIsFalse()
+        {
+            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
+
+            loginViewModel.RemoveError(PROPERTY_NAME);
+
+            Assert.That(loginViewModel.HasErrors, Is.False);
+        }
+
+        [Test]
+        public void RemoveError_RemovesErrorFromErrorCollection()
+        {
+            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
+
+            loginViewModel.RemoveError(PROPERTY_NAME);
+
+            Assert.That(loginViewModel._errorCollection.Errors.ContainsKey(PROPERTY_NAME), Is.False);
+        }
+
     }
 }
