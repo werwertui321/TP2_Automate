@@ -9,7 +9,7 @@ namespace Automate.Views
         public CalendarWindow()
         {
             InitializeComponent();
-            DataContext = new CalendarViewModel(this, Env.calendarService);
+            DataContext = new CalendarViewModel(this, Env.calendarService, Env.authenticatedUser!.IsAdmin);
         }
     }
 }

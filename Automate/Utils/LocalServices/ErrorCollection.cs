@@ -6,33 +6,36 @@ namespace Automate.Utils.LocalServices
 {
     public class ErrorCollection : IErrorCollection
     {
-        public Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
-        public ErrorCollection() { }
+        public Dictionary<string, List<string>> Errors {  get; set; }
+        public ErrorCollection()
+        {
+            Errors = new Dictionary<string, List<string>>();
+        }
 
         public void AddError(string propertyName, string errorMessage)
         {
-            if (!errors.ContainsKey(propertyName))
+            if (!Errors.ContainsKey(propertyName))
             {
-                errors[propertyName] = new List<string>();
+                Errors[propertyName] = new List<string>();
             }
-            if (!errors[propertyName].Contains(errorMessage))
+            if (!Errors[propertyName].Contains(errorMessage))
             {
-                errors[propertyName].Add(errorMessage);
+                Errors[propertyName].Add(errorMessage);
             }
         }
 
         public void RemoveError(string propertyName)
         {
-            if (errors.ContainsKey(propertyName))
+            if (Errors.ContainsKey(propertyName))
             {
-                errors.Remove(propertyName);
+                Errors.Remove(propertyName);
             }
         }
 
-        public string FormatErrorList(Dictionary<string, List<string>> errors)
+        public string FormatErrorListIntoSingleString()
         {
             var allErrors = new List<string>();
-            foreach (var errorList in this.errors.Values)
+            foreach (var errorList in Errors.Values)
             {
                 allErrors.AddRange(errorList);
             }
