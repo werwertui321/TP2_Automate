@@ -18,27 +18,27 @@ namespace AutomateTests
         private const string PASSWORD = "password";
         private const string USERNAME = "username";
 
-        public CalendarViewModel ArrangeLoginViewModelWithUserserviceSetup()
+        public LoginViewModel ArrangeLoginViewModelWithUserserviceSetup()
         {
             windowMock = new Mock<Window>();
             userServiceMock = new Mock<IUserService>();
             userServiceMock.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>())).Returns(new User());
             navigationUtilsMock = new Mock<INavigationUtils>();
-            return new CalendarViewModel(windowMock.Object, userServiceMock.Object, navigationUtilsMock.Object);
+            return new LoginViewModel(windowMock.Object, userServiceMock.Object, navigationUtilsMock.Object);
         }
 
-        public CalendarViewModel ArrangeLoginViewModel()
+        public LoginViewModel ArrangeLoginViewModel()
         {
             windowMock = new Mock<Window>();
             userServiceMock = new Mock<IUserService>();
             navigationUtilsMock = new Mock<INavigationUtils>();
-            return new CalendarViewModel(windowMock.Object, userServiceMock.Object, navigationUtilsMock.Object);
+            return new LoginViewModel(windowMock.Object, userServiceMock.Object, navigationUtilsMock.Object);
         }
 
         [Test]
         public void AddError_HasErrorIsTrue()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
 
             loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
 
@@ -48,7 +48,7 @@ namespace AutomateTests
         [Test]
         public void AddError_AddsErrorToErrorCollection()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
 
             loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
 
@@ -58,7 +58,7 @@ namespace AutomateTests
         [Test]
         public void RemoveError_HasErrorIsFalse()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
             loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
 
             loginViewModel.RemoveError(PROPERTY_NAME);
@@ -69,7 +69,7 @@ namespace AutomateTests
         [Test]
         public void RemoveError_RemovesErrorFromErrorCollection()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
             loginViewModel.AddError(PROPERTY_NAME, ERROR_MESSAGE);
 
             loginViewModel.RemoveError(PROPERTY_NAME);
@@ -80,7 +80,7 @@ namespace AutomateTests
         [Test]
         public void ValidateUsernameIsNullOrEmpty_AddsErrorOnEmptyUsername()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
 
             loginViewModel.ValidateUsernameIsNullOrEmpty();
 
@@ -90,7 +90,7 @@ namespace AutomateTests
         [Test]
         public void ValidatePasswordIsNullOrEmpty_AddsErrorOnEmptyPassword()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
 
             loginViewModel.ValidatePasswordIsNullOrEmpty();
 
@@ -100,7 +100,7 @@ namespace AutomateTests
         [Test]
         public void ValidateAuthentication_UsernameIsNull()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
             loginViewModel.Password = PASSWORD;
 
             loginViewModel.ValidateAuthentication();
@@ -111,7 +111,7 @@ namespace AutomateTests
         [Test]
         public void ValidateAuthentication_PasswordIsNull()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
             loginViewModel.Username = USERNAME;
 
             loginViewModel.ValidateAuthentication();
@@ -122,7 +122,7 @@ namespace AutomateTests
         [Test]
         public void ValidateAuthentication_Calls_AddError_OnNullUser()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModel();
+            LoginViewModel loginViewModel = ArrangeLoginViewModel();
             loginViewModel.Username = USERNAME;
             loginViewModel.Password = PASSWORD;
 
@@ -134,7 +134,7 @@ namespace AutomateTests
         [Test]
         public void ValidateAuthentication_GoodCredentials_AffectsUserToAuthenticatedUser()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModelWithUserserviceSetup();
+            LoginViewModel loginViewModel = ArrangeLoginViewModelWithUserserviceSetup();
             loginViewModel.Username = USERNAME;
             loginViewModel.Password = PASSWORD;
 
@@ -146,7 +146,7 @@ namespace AutomateTests
         [Test]
         public void ValidateAuthentication_GoodCredentials_CallsNavigateFunction()
         {
-            CalendarViewModel loginViewModel = ArrangeLoginViewModelWithUserserviceSetup();
+            LoginViewModel loginViewModel = ArrangeLoginViewModelWithUserserviceSetup();
             loginViewModel.Username = USERNAME;
             loginViewModel.Password = PASSWORD;
 
