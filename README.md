@@ -1,3 +1,6 @@
 # TP2_14E_A24
 Automate
-Samuel Chiasson et Léo Castonguay
+Samuel Chiasson et Lï¿½o Castonguay
+
+Compte admin --> Username : george | Password : werwer
+Compte normal --> Username : steve | Password : werwer 
