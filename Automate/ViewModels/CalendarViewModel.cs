@@ -29,7 +29,7 @@ namespace Automate.ViewModels
         public ICommand UpdateTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
 
-        public bool HasErrors => errorCollection.errors.Count > 0;
+        public bool HasErrors => errorCollection.Errors.Count > 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
@@ -37,7 +37,7 @@ namespace Automate.ViewModels
         public CalendarViewModel(Window openedWindow, CalendarService calendarService)
         {
             _calendarService = calendarService;
-            _isAdmin = Env.authenticatedUser.IsAdmin;
+            _isAdmin = Env.authenticatedUser!.IsAdmin;
             _selectedDate = DateTime.Today;
             AddTaskCommand = new RelayCommand(AddTask);
             UpdateTaskCommand = new RelayCommand(UpdateTask);
@@ -49,12 +49,12 @@ namespace Automate.ViewModels
 
         public bool IsAdmin { get =>  _isAdmin; }
 
-        public List<bool> Important
+        public List<bool>? Important
         {
             get => CreateImportantList();
         }
 
-        public List<AutomateTask> Tasks
+        public List<AutomateTask>? Tasks
         {
             get => _tasks;
             set
@@ -64,7 +64,7 @@ namespace Automate.ViewModels
             }
         }
 
-        public AutomateTask SelectedTask
+        public AutomateTask? SelectedTask
         {
             get => _selectedTask;
             set
@@ -124,7 +124,7 @@ namespace Automate.ViewModels
             {
                 if (ValidateUpdate())
                 {
-                    _calendarService.UpdateTask(TaskName, SelectedTask.Id);
+                    _calendarService.UpdateTask(TaskName!, SelectedTask!.Id);
                     Tasks = _calendarService.GetTasksByDate(SelectedDate);
                     TaskName = "";
                 }
@@ -161,12 +161,12 @@ namespace Automate.ViewModels
                 if (_selectedTask is not null)
                 {
                     RemoveError(nameof(TaskName));
-                    _calendarService.DeleteTask(SelectedTask.Id);
+                    _calendarService.DeleteTask(SelectedTask!.Id);
                     Tasks = _calendarService.GetTasksByDate(SelectedDate);
                 }
                 else
                 {
-                    AddError(nameof(SelectedTask), "Un tâche doit être sélectionner pour pouvoir supprimer");
+                    AddError(nameof(SelectedTask), "Un tâche doit être sélectionnée pour pouvoir supprimer");
                 }
             }
             catch (Exception exception)
@@ -175,19 +175,23 @@ namespace Automate.ViewModels
             }
         }
 
-        public List<bool> CreateImportantList()
+        public List<bool>? CreateImportantList()
         {
-            List<bool> important = new List<bool>();
-            for (int i = 0; i < _tasks.Count; i++)
+            if (Tasks is null)
             {
-                important[i] = _tasks[i].Important;
+                return null;
+            }
+            List<bool> important = new List<bool>();
+            for (int i = 0; i < Tasks.Count; i++)
+            {
+                important[i] = Tasks[i].Important;
             }
             return important;
         }
 
         public string ErrorMessages
         {
-            get { return errorCollection.FormatErrorList(errorCollection.errors); }
+            get { return errorCollection.FormatErrorListIntoSingleString(); }
         }
 
         protected void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -211,12 +215,12 @@ namespace Automate.ViewModels
 
         public IEnumerable GetErrors(string? propertyName)
         {
-            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
+            if (string.IsNullOrEmpty(propertyName) || !errorCollection.Errors.ContainsKey(propertyName))
             {
                 return Enumerable.Empty<string>();
             }
 
-            return errorCollection.errors[propertyName];
+            return errorCollection.Errors[propertyName];
         }
     }
 }

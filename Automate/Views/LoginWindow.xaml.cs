@@ -11,7 +11,7 @@ namespace Automate
         public LoginWindow()
         {
             InitializeComponent();
-            DataContext = new LoginViewModel(this, Env.userService, new NavigationUtils(), new ErrorCollection());
+            DataContext = new LoginViewModel(this, Env.userService, new NavigationUtils());
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
