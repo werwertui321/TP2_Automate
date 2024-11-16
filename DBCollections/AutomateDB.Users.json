@@ -1,0 +1,16 @@
+[{
+  "_id": {
+    "$oid": "672e5da7ef898d78557aad11"
+  },
+  "Username": "george",
+  "Password": "$2a$11$egT6RJKZt3HP.sYYf/Xdw.p5N6or2U0PP3W4o7Agt.p3mcFG.aO22",
+  "IsAdmin": true
+},
+{
+  "_id": {
+    "$oid": "673502175e0056115a2af29e"
+  },
+  "Username": "steve",
+  "Password": "$2a$11$egT6RJKZt3HP.sYYf/Xdw.p5N6or2U0PP3W4o7Agt.p3mcFG.aO22",
+  "IsAdmin": false
+}]
