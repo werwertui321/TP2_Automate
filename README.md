@@ -2,5 +2,5 @@
 Automate
 Samuel Chiasson et L�o Castonguay
 
-Compte admin --> Username : george | Password : werwer
+Compte admin --> Username : george | Password : werwer /
 Compte normal --> Username : steve | Password : werwer 
