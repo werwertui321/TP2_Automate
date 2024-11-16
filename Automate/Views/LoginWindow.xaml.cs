@@ -11,13 +11,13 @@ namespace Automate
         public LoginWindow()
         {
             InitializeComponent();
-            DataContext = new CalendarViewModel(this, Env.userService, new NavigationUtils());
+            DataContext = new LoginViewModel(this, Env.userService, new NavigationUtils());
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             PasswordBox? passwordBox = sender as PasswordBox;
-            if (DataContext is CalendarViewModel viewModel)
+            if (DataContext is LoginViewModel viewModel)
             {
                 viewModel.Password = passwordBox.Password;
             }
