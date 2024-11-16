@@ -1,4 +1,5 @@
 ﻿using Automate.Interfaces;
+using Automate.Utils.DataServices;
 using Automate.ViewModels;
 using MongoDB.Driver;
 using Moq;
@@ -21,7 +22,7 @@ namespace AutomateTests
         [SetUp]
         public void Setup()
         {
-            _calendarService = new CalendarService();
+            _calendarService = new CalendarService(_database);
             _mockWindow = new Mock<Window>();
             _viewModel = new CalendarViewModel(_mockWindow.Object, _calendarService.Object, true);
         }
