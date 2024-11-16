@@ -18,22 +18,21 @@ namespace Automate.ViewModels
         private string? _username;
         private string? _password;
         private readonly IUserService _userService;
-        private readonly INavigationUtils _navigationService;
+        private readonly NavigationUtils _navigationService;
         private Window _window;
-        public IUser? _authenticatedUser;
-        public readonly IErrorCollection _errorCollection;
+        private readonly ErrorCollection _errorCollection;
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
         public ICommand AuthenticateCommand { get; }
-        public bool HasPasswordErrors => _errorCollection.Errors.ContainsKey(nameof(Password)) && _errorCollection.Errors[nameof(Password)].Any();
-        public bool HasErrors => _errorCollection.Errors.Count > 0;
+        public bool HasPasswordErrors => _errorCollection.errors.ContainsKey(nameof(Password)) && _errorCollection.errors[nameof(Password)].Any();
+        public bool HasErrors => _errorCollection.errors.Count > 0;
 
 
-        public LoginViewModel(Window openedWindow, IUserService userService, INavigationUtils navigationUtils)
+        public LoginViewModel(Window openedWindow, IUserService userService, NavigationUtils navigationUtils, ErrorCollection errorCollection)
         {
             _userService = userService;
             _navigationService = navigationUtils;
-            _errorCollection = new ErrorCollection();
+            _errorCollection = errorCollection;
             _window = openedWindow;
             AuthenticateCommand = new RelayCommand(ValidateAuthentication);
         }
@@ -45,7 +44,7 @@ namespace Automate.ViewModels
             {
                 _username = value;
                 NotifyOnPropertyChanged(nameof(Username));
-                ValidateUsernameIsNullOrEmpty();
+                ValidateProperty(nameof(Username));
             }
         }
 
@@ -56,26 +55,18 @@ namespace Automate.ViewModels
             {
                 _password = value;
                 NotifyOnPropertyChanged(nameof(Password));
-                ValidatePasswordIsNullOrEmpty();
+                ValidateProperty(nameof(Password));
             }
         }
 
         public string ErrorMessages
         {
-            get { return _errorCollection.FormatErrorListIntoSingleString(); }
+            get { return _errorCollection.FormatErrorList(_errorCollection.errors); }
         }
 
-        public void AddError(string propertyName, string message)
+        private void AddError(string propertyName,  string message)
         {
             _errorCollection.AddError(propertyName, message);
-            NotifyOnPropertyChanged(nameof(ErrorMessages));
-            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-        }
-
-        public void RemoveError(string propertyName)
-        {
-            _errorCollection.RemoveError(propertyName);
             NotifyOnPropertyChanged(nameof(ErrorMessages));
             NotifyOnPropertyChanged(nameof(HasPasswordErrors));
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
@@ -85,64 +76,74 @@ namespace Automate.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
+        private void RemoveError(string propertyName)
+        {
+            _errorCollection.RemoveError(propertyName);
+            NotifyOnPropertyChanged(nameof(ErrorMessages));
+            NotifyOnPropertyChanged(nameof(HasPasswordErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
 
         public void ValidateAuthentication()
         {
-            ValidateUsernameIsNullOrEmpty();
-            ValidatePasswordIsNullOrEmpty();
+            ValidateProperty(nameof(Username));
+            ValidateProperty(nameof(Password));
 
-            if (HasErrors)
-                return;
-
-            _authenticatedUser = _userService.Authenticate(Username, Password);
-            if (_authenticatedUser == null)
+            if (!HasErrors)
             {
-                AddError(nameof(Username), "Nom d'utilisateur ou mot de passe invalide");
-                AddError(nameof(Password), "");
-                return;
-            }
-
-            NavigateToHomeWindow();
-        }
-
-        public void NavigateToHomeWindow()
-        {
-            _navigationService.OpenNewView<HomeWindow>();
-            _navigationService.CloseCurrentView(_window);
-        }
-
-        public void ValidateUsernameIsNullOrEmpty()
-        {
-            if (string.IsNullOrEmpty(Username))
-            {
-                AddError(nameof(Username), "Le nom d'utilisateur ne peut pas être vide.");
-            }
-            else
-            {
-                RemoveError(nameof(Username));
+                Env.authenticatedUser = _userService.Authenticate(Username, Password);
+                if (Env.authenticatedUser == null)
+                {
+                    AddError(nameof(Username), "Nom d'utilisateur ou mot de passe invalide");
+                    AddError(nameof(Password), "");
+                    Trace.WriteLine("invalid");
+                }
+                else
+                {
+                    _navigationService.OpenNewView<HomeWindow>();
+                    _navigationService.CloseCurrentView(_window);
+                    Trace.WriteLine("logged in");
+                }
             }
         }
 
-        public void ValidatePasswordIsNullOrEmpty()
+        private void ValidateProperty(string? propertyName)
         {
-            if (string.IsNullOrEmpty(Password))
+            switch (propertyName)
             {
-                AddError(nameof(Password), "Le mot de passe ne peut pas être vide.");
-            }
-            else
-            {
-                RemoveError(nameof(Password));
+                case nameof(Username):
+                    if (string.IsNullOrEmpty(Username))
+                    {
+                        AddError(nameof(Username), "Le nom d'utilisateur ne peut pas être vide.");
+                    }
+                    else
+                    {
+                        RemoveError(nameof(Username));
+                    }
+                    break;
+
+                case nameof(Password):
+                    if (string.IsNullOrEmpty(Password))
+                    {
+                        AddError(nameof(Password), "Le mot de passe ne peut pas être vide.");
+                    }
+                    else
+                    {
+                        RemoveError(nameof(Password));
+                    }
+                    break;
             }
         }
 
         public IEnumerable GetErrors(string? propertyName)
         {
-            if (string.IsNullOrEmpty(propertyName) || !_errorCollection.Errors.ContainsKey(propertyName))
+            if (string.IsNullOrEmpty(propertyName) || !_errorCollection.errors.ContainsKey(propertyName))
             {
                 return Enumerable.Empty<string>();
             }
 
-            return _errorCollection.Errors[propertyName];
+            return _errorCollection.errors[propertyName];
         }
 
     }

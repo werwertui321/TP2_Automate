@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
-
+using Automate.Interfaces;
 
 namespace Automate.ViewModels
 {
@@ -21,7 +21,7 @@ namespace Automate.ViewModels
         private AutomateTask? _selectedTask;
         private List<AutomateTask>? _tasks;
         private readonly ErrorCollection errorCollection;
-        private readonly CalendarService _calendarService;
+        private readonly ICalendarService _calendarService;
         private readonly bool _isAdmin;
         private Window _window;
 
@@ -34,16 +34,20 @@ namespace Automate.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        public CalendarViewModel(Window openedWindow, CalendarService calendarService)
+        public CalendarViewModel(Window openedWindow, ICalendarService calendarService, bool isAdmin)
         {
             _calendarService = calendarService;
+<<<<<<< HEAD
+            _isAdmin = isAdmin;
+=======
             _isAdmin = Env.authenticatedUser!.IsAdmin;
+>>>>>>> 43f70d66ddd72287baf868477e4605face6143c0
             _selectedDate = DateTime.Today;
             AddTaskCommand = new RelayCommand(AddTask);
             UpdateTaskCommand = new RelayCommand(UpdateTask);
             DeleteTaskCommand = new RelayCommand(DeleteTask);
             errorCollection = new ErrorCollection();
-            Tasks = _calendarService.GetTasksByDate(SelectedDate);
+            GetTaskForSelectedDay();
             _window = openedWindow;
         }
 
@@ -81,7 +85,7 @@ namespace Automate.ViewModels
             {
                 _selectedDate = value;
                 NotifyOnPropertyChanged(nameof(SelectedDate));
-                Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                GetTaskForSelectedDay();
             }
         }
 
@@ -109,7 +113,7 @@ namespace Automate.ViewModels
                     AutomateTask task = new AutomateTask(SelectedDate, TaskName.Trim());
                     _calendarService.AddTask(task);
                     TaskName = "";
-                    Tasks = _calendarService.GetTasksByDate(SelectedDate);
+                    GetTaskForSelectedDay();
                 }
             }
             catch(Exception exception)
@@ -124,8 +128,13 @@ namespace Automate.ViewModels
             {
                 if (ValidateUpdate())
                 {
+<<<<<<< HEAD
+                    _calendarService.UpdateTask(TaskName, SelectedTask.Id);
+                    GetTaskForSelectedDay();
+=======
                     _calendarService.UpdateTask(TaskName!, SelectedTask!.Id);
                     Tasks = _calendarService.GetTasksByDate(SelectedDate);
+>>>>>>> 43f70d66ddd72287baf868477e4605face6143c0
                     TaskName = "";
                 }
             }
@@ -161,12 +170,21 @@ namespace Automate.ViewModels
                 if (_selectedTask is not null)
                 {
                     RemoveError(nameof(TaskName));
+<<<<<<< HEAD
+                    _calendarService.DeleteTask(SelectedTask.Id);
+                    GetTaskForSelectedDay();
+                }
+                else
+                {
+                    AddError(nameof(SelectedTask), "Une tâche doit être sélectionner pour pouvoir supprimer");
+=======
                     _calendarService.DeleteTask(SelectedTask!.Id);
                     Tasks = _calendarService.GetTasksByDate(SelectedDate);
                 }
                 else
                 {
                     AddError(nameof(SelectedTask), "Un tâche doit être sélectionnée pour pouvoir supprimer");
+>>>>>>> 43f70d66ddd72287baf868477e4605face6143c0
                 }
             }
             catch (Exception exception)
@@ -175,7 +193,16 @@ namespace Automate.ViewModels
             }
         }
 
+<<<<<<< HEAD
+        public void GetTaskForSelectedDay()
+        {
+            Tasks = _calendarService.GetTasksByDate(SelectedDate);
+        }
+
+        public List<bool> CreateImportantList()
+=======
         public List<bool>? CreateImportantList()
+>>>>>>> 43f70d66ddd72287baf868477e4605face6143c0
         {
             if (Tasks is null)
             {
