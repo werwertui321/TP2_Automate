@@ -29,7 +29,7 @@ namespace Automate.ViewModels
         public ICommand UpdateTaskCommand { get; }
         public ICommand DeleteTaskCommand { get; }
 
-        public bool HasErrors => errorCollection.errors.Count > 0;
+        public bool HasErrors => errorCollection.Errors.Count > 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
@@ -49,12 +49,12 @@ namespace Automate.ViewModels
 
         public bool IsAdmin { get =>  _isAdmin; }
 
-        public List<bool> Important
+        public List<bool>? Important
         {
             get => CreateImportantList();
         }
 
-        public List<AutomateTask> Tasks
+        public List<AutomateTask>? Tasks
         {
             get => _tasks;
             set
@@ -64,7 +64,7 @@ namespace Automate.ViewModels
             }
         }
 
-        public AutomateTask SelectedTask
+        public AutomateTask? SelectedTask
         {
             get => _selectedTask;
             set
@@ -182,17 +182,21 @@ namespace Automate.ViewModels
 
         public List<bool> CreateImportantList()
         {
-            List<bool> important = new List<bool>();
-            for (int i = 0; i < _tasks.Count; i++)
+            if (Tasks is null)
             {
-                important[i] = _tasks[i].Important;
+                return null;
+            }
+            List<bool> important = new List<bool>();
+            for (int i = 0; i < Tasks.Count; i++)
+            {
+                important[i] = Tasks[i].Important;
             }
             return important;
         }
 
         public string ErrorMessages
         {
-            get { return errorCollection.FormatErrorList(errorCollection.errors); }
+            get { return errorCollection.FormatErrorListIntoSingleString(); }
         }
 
         protected void NotifyOnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -216,12 +220,12 @@ namespace Automate.ViewModels
 
         public IEnumerable GetErrors(string? propertyName)
         {
-            if (string.IsNullOrEmpty(propertyName) || !errorCollection.errors.ContainsKey(propertyName))
+            if (string.IsNullOrEmpty(propertyName) || !errorCollection.Errors.ContainsKey(propertyName))
             {
                 return Enumerable.Empty<string>();
             }
 
-            return errorCollection.errors[propertyName];
+            return errorCollection.Errors[propertyName];
         }
     }
 }
